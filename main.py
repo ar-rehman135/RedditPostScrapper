@@ -43,10 +43,14 @@ def main():
     parser.add_argument('--filename', nargs='?', const='table_records', type=str, default='table_records',
                     help='Change the file name from table_records to whatever you wish')
 
+    parser.add_argument('--getpolygondata', default=False,
+                        help='Change the file name from table_records to whatever you wish')
+
     args = parser.parse_args()
 
-    print("Getting Tickers from Polygon")
-    get_all_tickers_data()
+    if args.getpolygondata:
+        print("Getting Tickers from Polygon")
+        get_all_tickers_data()
 
     print("Getting submissions...")
     # call reddit api to get results
