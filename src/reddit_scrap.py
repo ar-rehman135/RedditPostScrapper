@@ -281,11 +281,11 @@ def filter_df(df, min_val):
     for key1 in df.keys():
         stock = df[key1]
         for ticker in stock:
-            print(ticker)
+            # print(ticker)
             if ticker in VALID_TICKERS:
                 valid_tickers_with_scores[ticker] = stock[ticker]
 
-    print(valid_tickers_with_scores)
+    # print(valid_tickers_with_scores)
     dt = datetime.now()
     for valid_ticker in valid_tickers_with_scores:
         score = valid_tickers_with_scores[valid_ticker]['Score']
@@ -317,8 +317,8 @@ def get_all_tickers_data():
     result2 = None
     processed_stats_data_list = []
 
-    while i<=count and i<2:
-        url = "https://api.polygon.io/v2/reference/tickers?sort=ticker&perpage=300&page="+str(i)+"&apiKey="+POLYGON_API_KEY
+    while i<=count:
+        url = "https://api.polygon.io/v2/reference/tickers?sort=ticker&perpage=500&page="+str(i)+"&apiKey="+POLYGON_API_KEY
         resp = request(method="GET", url= url)
         tickers_data = json.loads(resp.text)
         count = math.ceil(tickers_data['count']/300)
@@ -329,8 +329,9 @@ def get_all_tickers_data():
         for ticker in tickers:
             all_tickers.append(ticker['ticker'])
         i+=1
-
+    count = 0
     for ticker in all_tickers:
+        rejected_tickers_dict = {}
         logo = ''
         industry = ''
         sector = ''
@@ -399,8 +400,12 @@ def get_all_tickers_data():
                 save_to_database(processed_stats_data)
         else:
             print(ticker, result)
-            rejected_tickers.append(ticker)
+            rejected_tickers_dict['ticker'] = ticker
+            rejected_tickers_dict['date'] = str(todayDate)
+            rejected_tickers.append(rejected_tickers_dict)
             continue
+    df1 = pd.DataFrame(rejected_tickers)
+    df1.to_csv("RejectedTickers/rejected_tickers.csv", index=False)
     print("rejected_tickers", rejected_tickers)
 
 def save_to_database(obj):
