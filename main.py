@@ -43,7 +43,7 @@ def main():
     parser.add_argument('--filename', nargs='?', const='table_records', type=str, default='table_records',
                     help='Change the file name from table_records to whatever you wish')
 
-    parser.add_argument('--getpolygondata', default=False,
+    parser.add_argument('--getpolygondata', default=False, action='store_true',
                         help='Change the file name from table_records to whatever you wish')
 
     args = parser.parse_args()
