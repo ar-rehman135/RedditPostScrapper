@@ -1,6 +1,6 @@
 
 import argparse
-from reddit_scrap import *
+from src.reddit_scrap import *
 from collections import Counter
 from src.database.db import init_db
 def main():
