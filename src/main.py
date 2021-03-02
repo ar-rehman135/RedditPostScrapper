@@ -28,7 +28,7 @@ def main():
     parser.add_argument('--sort', nargs='?', const=1, type=int, default=1,
                     help='Sort the results table by descending order of score, 1 = sort by total score, 2 = sort by recent score, 3 = sort by previous score, 4 = sort by change in score, 5 = sort by # of rocket emojis')
 
-    parser.add_argument('--allsub', default=False, action='store_true',
+    parser.add_argument('--allsub', default=True, action='store_true',
                     help='Using this parameter searchs from one subreddit only, default subreddit is r/pennystocks.')
 
     parser.add_argument('--psaw', default=False, action='store_true',
@@ -45,26 +45,22 @@ def main():
 
     args = parser.parse_args()
 
+    print("Getting Tickers from Polygon")
+    get_all_tickers_data()
+
     print("Getting submissions...")
     # call reddit api to get results
     current_scores, current_rocket_scores, prev_scores, prev_rocket_scores = get_submission_generators(args.interval, args.sub, args.allsub, args.psaw)
 
     print("Populating results...")
     results_df = populate_df(current_scores, prev_scores, args.interval)
-    results_df = filter_df(results_df, args.min)
+    filter_df(results_df, args.min)
 
-    print("Counting rockets...")
-    rockets = Counter(current_rocket_scores) + Counter(prev_rocket_scores)
-    results_df.insert(loc=4, column='Rockets', value=pd.Series(rockets))
-    results_df = results_df.fillna(value=0).astype({'Rockets': 'int32'})
+    # print("Counting rockets...")
+    # rockets = Counter(current_rocket_scores) + Counter(prev_rocket_scores)
+    # results_df.insert(loc=4, column='Rockets', value=pd.Series(rockets))
+    # results_df = results_df.fillna(value=0).astype({'Rockets': 'int32'})
 
-    print("Getting financial stats...")
-    results_df = get_all_tickers_data()
-
-    # # Sort by Total (sort = 1), Recent (sort = 2), Prev (sort = 3), Change (sort = 4), Rockets (sort = 5)
-    # results_df.sort_values(by=results_df.columns[args.sort - 1], inplace=True, ascending=False)
-
-    save_to_database(results_df)
 
 if __name__ == '__main__':
     init_db()
