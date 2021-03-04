@@ -326,7 +326,14 @@ def get_all_tickers_data():
             tickers = tickers_data['tickers']
 
         print(len(tickers))
+        chars_to_check = [" ", ":"]
         for ticker in tickers:
+            error_in_ticker = False
+            for char in chars_to_check:
+                if char in ticker:
+                    error_in_ticker = True
+            if error_in_ticker:
+                continue
             all_tickers.append(ticker['ticker'])
         i+=1
     todayDate = datetime.today()
@@ -407,7 +414,7 @@ def get_all_tickers_data():
             continue
     df1 = pd.DataFrame(rejected_tickers)
     import random
-    df1.to_csv("RejectedTickers/rejected_tickers"+random.randint(0,5000)+".csv", index=False)
+    df1.to_csv("RejectedTickers/rejected_tickers"+str(random.randint(0,5000))+".csv", index=False)
     print("rejected_tickers", rejected_tickers)
 
 def save_to_database(obj):
