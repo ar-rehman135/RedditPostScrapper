@@ -423,6 +423,7 @@ def save_to_database(obj):
             ticker.description=obj['description']
             ticker.company_name=obj['company_name']
             ticker.similiar_companies=obj['similiar_companies']
+            ticker.dateTime = obj['dateTime']
             # ticker.volume=obj['volume']
             # ticker.week_high=obj['week_high']
             # ticker.week_low=obj['week_low']
@@ -438,6 +439,7 @@ def save_to_database(obj):
             company_name = obj['company_name'],
             stock_ticker = obj['stock_ticker'],
             similiar_companies = obj['similiar_companies'],
+            dateTime=obj['dateTime']
             # volume = obj['volume'],
             # week_high = obj['week_high'],
             # week_low = obj['week_low']
