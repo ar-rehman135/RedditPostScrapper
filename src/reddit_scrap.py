@@ -6,7 +6,6 @@ import praw
 from requests import request
 import pandas as pd
 import json
-import time
 from src.models.post import Posts, Scores
 from src.database.db import db_session
 
@@ -17,7 +16,8 @@ subreddit_dict = {'pennystocks': 'pnnystks',
                   'StockMarket': 'stkmrkt',
                   'stocks': 'stocks',
                   'investing': 'investng',
-                  'wallstreetbets': 'WSB'}
+                  'wallstreetbets': 'WSB',
+                  }
 
 # x base point of for a ticker that appears on a subreddit title or text body that fits the search criteria
 base_points = 4
@@ -329,7 +329,6 @@ def get_all_tickers_data():
         for ticker in tickers:
             all_tickers.append(ticker['ticker'])
         i+=1
-    count = 0
     for ticker in all_tickers:
         rejected_tickers_dict = {}
         logo = ''
@@ -342,21 +341,21 @@ def get_all_tickers_data():
         company_name = ''
         stock_ticker = ''
         similiar_companies = ''
-        volume = ''
-        week_high = ''
-        week_low = ''
+        # volume = ''
+        # week_high = ''
+        # week_low = ''
         url = "https://api.polygon.io/v1/meta/symbols/"+ticker+"/company?&apiKey="+POLYGON_API_KEY
         print(url)
         response = request(method="GET", url=url)
         result = json.loads(response.text)
         todayDate = datetime.today()
-        toDate = todayDate.strftime("%Y-%m-%d")
-        fromDate = str(todayDate.year - 1) + "-" + str(todayDate.month).zfill(2) + "-" + str(todayDate.day).zfill(2)
+        # toDate = todayDate.strftime("%Y-%m-%d")
+        # fromDate = str(todayDate.year - 1) + "-" + str(todayDate.month).zfill(2) + "-" + str(todayDate.day).zfill(2)
 
         if not 'error' in result:
-            volume_url = "https://api.polygon.io/v2/aggs/ticker/"+ticker+"/range/1/year/"+fromDate+"/"+toDate+"?unadjusted=true&sort=asc&limit=120&apiKey="+POLYGON_API_KEY;
-            response2 = request(method="GET", url=volume_url)
-            result2 = json.loads(response2.text)
+            # volume_url = "https://api.polygon.io/v2/aggs/ticker/"+ticker+"/range/1/year/"+fromDate+"/"+toDate+"?unadjusted=true&sort=asc&limit=120&apiKey="+POLYGON_API_KEY;
+            # response2 = request(method="GET", url=volume_url)
+            # result2 = json.loads(response2.text)
             processed_stats_data = {}
             if 'logo' in result:
                 logo = result['logo'] if result['logo'] else ''
@@ -378,10 +377,10 @@ def get_all_tickers_data():
                 stock_ticker = result['symbol'] if result['symbol'] else ''
             if 'similar' in result:
                 similiar_companies = listToString(result['similar']) if result['similar'] else ''
-            if 'results' in result2 and len(result2['results'])>0:
-                volume = result2['results'][0]["v"]
-                week_high = result2['results'][0]["h"]
-                week_low = result2['results'][0]["l"]
+            # if 'results' in result2 and len(result2['results'])>0:
+            #     volume = result2['results'][0]["v"]
+            #     week_high = result2['results'][0]["h"]
+            #     week_low = result2['results'][0]["l"]
 
             if stock_ticker != '':
                 processed_stats_data['logo'] = logo
@@ -394,9 +393,9 @@ def get_all_tickers_data():
                 processed_stats_data['company_name'] = company_name
                 processed_stats_data['stock_ticker'] = stock_ticker
                 processed_stats_data['similiar_companies'] = similiar_companies
-                processed_stats_data['volume'] = volume
-                processed_stats_data['week_high'] = week_high
-                processed_stats_data['week_low'] = week_low
+                # processed_stats_data['volume'] = volume
+                # processed_stats_data['week_high'] = week_high
+                # processed_stats_data['week_low'] = week_low
                 save_to_database(processed_stats_data)
         else:
             print(ticker, result)
@@ -421,9 +420,9 @@ def save_to_database(obj):
             ticker.description=obj['description']
             ticker.company_name=obj['company_name']
             ticker.similiar_companies=obj['similiar_companies']
-            ticker.volume=obj['volume']
-            ticker.week_high=obj['week_high']
-            ticker.week_low=obj['week_low']
+            # ticker.volume=obj['volume']
+            # ticker.week_high=obj['week_high']
+            # ticker.week_low=obj['week_low']
     else:
         p = Posts(
             logo= obj['logo'],
@@ -436,9 +435,9 @@ def save_to_database(obj):
             company_name = obj['company_name'],
             stock_ticker = obj['stock_ticker'],
             similiar_companies = obj['similiar_companies'],
-            volume = obj['volume'],
-            week_high = obj['week_high'],
-            week_low = obj['week_low']
+            # volume = obj['volume'],
+            # week_high = obj['week_high'],
+            # week_low = obj['week_low']
         )
         db_session.add(p)
     db_session.commit()
