@@ -329,6 +329,8 @@ def get_all_tickers_data():
         for ticker in tickers:
             all_tickers.append(ticker['ticker'])
         i+=1
+    todayDate = datetime.today()
+    print(todayDate)
     for ticker in all_tickers:
         rejected_tickers_dict = {}
         logo = ''
@@ -348,7 +350,6 @@ def get_all_tickers_data():
         print(url)
         response = request(method="GET", url=url)
         result = json.loads(response.text)
-        todayDate = datetime.today()
         # toDate = todayDate.strftime("%Y-%m-%d")
         # fromDate = str(todayDate.year - 1) + "-" + str(todayDate.month).zfill(2) + "-" + str(todayDate.day).zfill(2)
 
@@ -393,6 +394,7 @@ def get_all_tickers_data():
                 processed_stats_data['company_name'] = company_name
                 processed_stats_data['stock_ticker'] = stock_ticker
                 processed_stats_data['similiar_companies'] = similiar_companies
+                processed_stats_data['dateTime'] = todayDate
                 # processed_stats_data['volume'] = volume
                 # processed_stats_data['week_high'] = week_high
                 # processed_stats_data['week_low'] = week_low
@@ -404,7 +406,8 @@ def get_all_tickers_data():
             rejected_tickers.append(rejected_tickers_dict)
             continue
     df1 = pd.DataFrame(rejected_tickers)
-    df1.to_csv("RejectedTickers/rejected_tickers.csv", index=False)
+    import random
+    df1.to_csv("RejectedTickers/rejected_tickers"+random.randint(0,5000)+".csv", index=False)
     print("rejected_tickers", rejected_tickers)
 
 def save_to_database(obj):

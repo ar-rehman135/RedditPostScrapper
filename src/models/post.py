@@ -19,6 +19,7 @@ class Posts(Base):
     volume = Column(String(350))
     week_high = Column(String(350))
     week_low = Column(String(350))
+    dateTime = Column(String(350))
     def __init__(self,
             logo=None,
             industry = None,
@@ -32,7 +33,8 @@ class Posts(Base):
             similiar_companies = None,
             volume = None,
             week_high = None,
-            week_low = None
+            week_low = None,
+                 dateTime = None,
                  ):
         self.logo = logo
         self.industry = industry
@@ -47,6 +49,7 @@ class Posts(Base):
         self.volume = volume
         self.week_high = week_high
         self.week_low = week_low
+        self.dateTime = dateTime
 
     def __repr__(self):
         return '<Post %r>' % (self.stock_ticker)
