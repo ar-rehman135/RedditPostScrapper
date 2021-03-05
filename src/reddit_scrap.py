@@ -326,7 +326,7 @@ def get_all_tickers_data():
         for ticker in tickers:
             error_in_ticker = False
             for char in chars_to_check:
-                if char in ticker:
+                if char in ticker['ticker']:
                     error_in_ticker = True
             if error_in_ticker:
                 continue
