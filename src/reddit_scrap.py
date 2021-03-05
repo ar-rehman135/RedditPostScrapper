@@ -231,10 +231,7 @@ def get_submission_generators(n, sub, allsub, use_psaw):
 
 
 def populate_df(current_scores_dict, prev_scores_dict, interval):
-    """
-    Combine two score dictionaries, one from the current time interval, and one from the past time interval
-    :returns: the populated dataframe
-    """
+    print("Compbining Current And Previous Scores")
     dict_result = {}
     total_sub_scores = {}
 
@@ -274,14 +271,13 @@ def populate_df(current_scores_dict, prev_scores_dict, interval):
     return total_sub_scores
 
 def filter_df(df, min_val):
-
+    print("##### Filter Dataframe")
     valid_tickers_with_scores = {}
     VALID_TICKERS = Posts.query.with_entities(Posts.stock_ticker).all()
     VALID_TICKERS = [ticker[0] for ticker in VALID_TICKERS]
     for key1 in df.keys():
         stock = df[key1]
         for ticker in stock:
-            # print(ticker)
             if ticker in VALID_TICKERS:
                 valid_tickers_with_scores[ticker] = stock[ticker]
 
@@ -337,7 +333,7 @@ def get_all_tickers_data():
             all_tickers.append(ticker['ticker'])
         i+=1
     todayDate = datetime.today()
-    print(todayDate)
+    print(todayDate , len(all_tickers))
     for ticker in all_tickers:
         rejected_tickers_dict = {}
         logo = ''
@@ -415,7 +411,7 @@ def get_all_tickers_data():
     df1 = pd.DataFrame(rejected_tickers)
     import random
     df1.to_csv("RejectedTickers/rejected_tickers"+str(random.randint(0,5000))+".csv", index=False)
-    print("rejected_tickers", rejected_tickers)
+    print("Rejected_tickers are Saved To Csv")
 
 def save_to_database(obj):
 

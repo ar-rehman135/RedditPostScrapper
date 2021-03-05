@@ -48,6 +48,7 @@ def main():
 
     args = parser.parse_args()
 
+    print("Program Start at ", datetime.now())
     if args.getpolygondata:
         print("Getting Tickers from Polygon")
         get_all_tickers_data()
@@ -59,6 +60,8 @@ def main():
     print("Populating results...")
     results_df = populate_df(current_scores, prev_scores, args.interval)
     filter_df(results_df, args.min)
+
+    print("Program Complete at ", datetime.now())
 
     # print("Counting rockets...")
     # rockets = Counter(current_rocket_scores) + Counter(prev_rocket_scores)
