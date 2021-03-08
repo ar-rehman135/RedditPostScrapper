@@ -1,7 +1,28 @@
 import json
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float
 from src.database.db import Base
 
+
+class Scores(Base):
+    __tablename__ = 'StockScoresPerDay'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    stock_ticker = Column(String(350))
+    date = Column(DateTime(350))
+    sub_reddit = Column(String(350))
+    mention = Column(Integer)
+    score = Column(Integer)
+    def __init__(self, stock_ticker = None, date = None, sub_reddit = None, mention =None, score = None):
+        self.stock_ticker = stock_ticker
+        self.date = date
+        self.sub_reddit = sub_reddit
+        self.mention = mention
+        self.score = score
+
+    def __repr__(self):
+        return '<StockScoresPerDay %r>' % (self.stock_ticker)
+
+    def toDict(self):
+        return json.dumps(self)
 
 class Posts(Base):
     __tablename__ = 'Posts'
@@ -20,6 +41,7 @@ class Posts(Base):
     week_high = Column(String(350))
     week_low = Column(String(350))
     dateTime = Column(String(350))
+
     def __init__(self,
             logo=None,
             industry = None,
@@ -58,23 +80,3 @@ class Posts(Base):
         return json.dumps(self)
 
 
-class Scores(Base):
-    __tablename__ = 'StockScoresPerDay'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    stock_ticker = Column(String(350))
-    date = Column(DateTime(350))
-    sub_reddit = Column(String(350))
-    mention = Column(String(350))
-    score = Column(String(350))
-    def __init__(self, stock_ticker = None, date = None, sub_reddit = None, mention =None, score = None):
-        self.stock_ticker = stock_ticker
-        self.date = date
-        self.sub_reddit = sub_reddit
-        self.mention = mention
-        self.score = score
-
-    def __repr__(self):
-        return '<StockScoresPerDay %r>' % (self.stock_ticker)
-
-    def toDict(self):
-        return json.dumps(self)

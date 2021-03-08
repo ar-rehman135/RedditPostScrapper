@@ -290,8 +290,8 @@ def filter_df(df, min_val):
         s = Scores(
             stock_ticker = valid_ticker,
             date = dt,
-            score = score,
-            mention = mention,
+            score = int(score),
+            mention = int(mention),
             sub_reddit = subreddit
         )
         db_session.add(s)
