@@ -23,6 +23,28 @@ class Scores(Base):
 
     def toDict(self):
         return json.dumps(self)
+    
+class Scores1(Base):
+    __tablename__ = 'test_stocks'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    stock_ticker = Column(String(350))
+    date = Column(DateTime(350))
+    sub_reddit = Column(String(350))
+    mention = Column(Integer)
+    score = Column(Integer)
+    def __init__(self, stock_ticker = None, date = None, sub_reddit = None, mention =None, score = None):
+        self.stock_ticker = stock_ticker
+        self.date = date
+        self.sub_reddit = sub_reddit
+        self.mention = mention
+        self.score = score
+
+    def __repr__(self):
+        return '<StockScoresPerDay %r>' % (self.stock_ticker)
+
+    def toDict(self):
+        return json.dumps(self)
+
 
 class Posts(Base):
     __tablename__ = 'Posts'

@@ -6,7 +6,7 @@ import praw
 from requests import request
 import pandas as pd
 import json
-from src.models.post import Posts, Scores
+from src.models.post import Posts, Scores, Scores1
 from src.database.db import db_session
 
 # dictionary of possible subreddits to search in with their respective column name
@@ -279,22 +279,26 @@ def filter_df(df, min_val):
         stock = df[key1]
         for ticker in stock:
             if ticker in VALID_TICKERS:
-                valid_tickers_with_scores[ticker] = stock[ticker]
+                if not ticker in valid_tickers_with_scores:
+                    valid_tickers_with_scores[ticker] = [stock[ticker]]
+                else:
+                    valid_tickers_with_scores[ticker].append(stock[ticker])
 
     # print(valid_tickers_with_scores)
     dt = datetime.now()
     for valid_ticker in valid_tickers_with_scores:
-        score = valid_tickers_with_scores[valid_ticker]['Score']
-        mention = valid_tickers_with_scores[valid_ticker]['Mention']
-        subreddit =  valid_tickers_with_scores[valid_ticker]['Subreddit']
-        s = Scores(
-            stock_ticker = valid_ticker,
-            date = dt,
-            score = int(score),
-            mention = int(mention),
-            sub_reddit = subreddit
-        )
-        db_session.add(s)
+        for ticker_data in valid_tickers_with_scores[valid_ticker]:
+            score = ticker_data['Score']
+            mention = ticker_data['Mention']
+            subreddit = ticker_data['Subreddit']
+            s = Scores(
+                stock_ticker = valid_ticker,
+                date = dt,
+                score = int(score),
+                mention = int(mention),
+                sub_reddit = subreddit
+            )
+            db_session.add(s)
 
     db_session.commit()
 

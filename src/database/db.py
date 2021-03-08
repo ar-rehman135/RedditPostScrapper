@@ -13,5 +13,5 @@ Base.query = db_session.query_property()
 
 def init_db():
     from src.models.post import Posts
-    from src.models.post import Scores
+    from src.models.post import Scores1
     Base.metadata.create_all(bind=engine)
