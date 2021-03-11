@@ -269,12 +269,23 @@ def populate_df(current_scores_dict, prev_scores_dict, interval):
 def filter_df(df):
     print("Filter Dataframes")
     valid_tickers_with_scores = {}
+    BANNED_WORDS = [
+        'THE', 'FUCK', 'ING', 'CEO', 'USD', 'WSB', 'FDA', 'NEWS', 'FOR', 'YOU', 'AMTES', 'WILL', 'CDT', 'SUPPO',
+        'MERGE', 'BUY', 'HIGH', 'ADS', 'FOMO', 'THIS', 'OTC', 'ELI', 'IMO', 'TLDR', 'SHIT', 'ETF', 'BOOM', 'THANK',
+        'PPP', 'REIT', 'HOT', 'MAYBE', 'AKA', 'CBS', 'SEC', 'NOW', 'OVER', 'ROPE', 'MOON', 'SSR', 'HOLD', 'SELL',
+        'COVID', 'GROUP', 'MONDA', 'USA', 'YOLO', 'MUSK', 'AND', 'STONK', 'ELON', 'CAD', 'WIN', 'GET', 'BETS', 'INTO',
+        'JUST', 'MAKE', 'NEED', 'BIG', 'STONK', 'ELON', 'CAD', 'OUT', 'TOP', 'ALL', 'ATH', 'ANY', 'AIM', 'IPO', 'EDIT',
+        'NEW', 'NYC', 'CAN', 'TWO', 'BEST', 'DROP', 'MOST', 'ONE', 'CFO', 'EST', 'CSM', 'KNOW', 'EPS', 'INC', 'TERM',
+        'ITA',
+        'PLC', 'UGL', 'CAGR'
+    ]
+
     VALID_TICKERS = Posts.query.with_entities(Posts.stock_ticker).all()
     VALID_TICKERS = [ticker[0] for ticker in VALID_TICKERS]
     for key1 in df.keys():
         stock = df[key1]
         for ticker in stock:
-            if ticker in VALID_TICKERS:
+            if ticker in VALID_TICKERS and not(ticker in BANNED_WORDS):
                 if not ticker in valid_tickers_with_scores:
                     valid_tickers_with_scores[ticker] = [stock[ticker]]
                 else:
