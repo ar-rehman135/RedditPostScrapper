@@ -146,9 +146,6 @@ def get_ticker_scores_praw(sub_gen_dict):
     # Dictionaries containing the summaries
     sub_scores_dict = {}
 
-    # Dictionaries containing the rocket count
-    rocket_scores_dict = {}
-
     for sub, submission_list in sub_gen_dict.items():
 
         sub_scores_dict[sub] = {}
@@ -166,11 +163,9 @@ def get_ticker_scores_praw(sub_gen_dict):
                 elif 'technical analysis' in submission[1]:
                     increment += bonus_points
 
-            # every 2 upvotes are worth 1 extra point
             if upvote_factor > 0 and submission[3] is not None:
                 increment += math.ceil(submission[3]/upvote_factor)
 
-            # search the title for the ticker/tickers
             title = ' ' + submission[0] + ' '
             title_extracted = set(re.findall(pattern, title))
 
@@ -183,9 +178,9 @@ def get_ticker_scores_praw(sub_gen_dict):
             extracted_tickers = selftext_extracted.union(title_extracted)
             extracted_tickers = {ticker.replace('.', '-') for ticker in extracted_tickers}
 
-            count_rocket = title.count(rocket) + selftext.count(rocket)
-            for ticker in extracted_tickers:
-                rocket_scores_dict[ticker] = rocket_scores_dict.get(ticker, 0) + count_rocket
+            # count_rocket = title.count(rocket) + selftext.count(rocket)
+            # for ticker in extracted_tickers:
+            #     rocket_scores_dict[ticker] = rocket_scores_dict.get(ticker, 0) + count_rocket
 
             # title_extracted is a set, duplicate tickers from the same title counted once only
             for ticker in extracted_tickers:
@@ -196,7 +191,7 @@ def get_ticker_scores_praw(sub_gen_dict):
                     sub_scores_dict[sub][ticker][1] += 1
 
 
-    return sub_scores_dict, rocket_scores_dict
+    return sub_scores_dict
 
 def get_submission_generators(n, sub, allsub, use_psaw):
 
@@ -209,7 +204,6 @@ def get_submission_generators(n, sub, allsub, use_psaw):
 
     if use_psaw:
         recent, prev = get_submission_psaw(n, sub_dict)
-
         print("Searching for tickers...")
         current_scores, current_rocket_scores = get_ticker_scores_psaw(recent)
         prev_scores, prev_rocket_scores = get_ticker_scores_psaw(prev)
@@ -223,55 +217,57 @@ def get_submission_generators(n, sub, allsub, use_psaw):
             print("try switching to psaw")
         else: 
             print("Searching for tickers...")
-            current_scores, current_rocket_scores = get_ticker_scores_praw(recent)
-            prev_scores, prev_rocket_scores = get_ticker_scores_praw(prev)  
+            current_scores = get_ticker_scores_praw(recent)
+            prev_scores = get_ticker_scores_praw(prev)
 
-    return current_scores, current_rocket_scores, prev_scores, prev_rocket_scores
+    return current_scores, prev_scores
 
 
 
 def populate_df(current_scores_dict, prev_scores_dict, interval):
-    print("Compbining Current And Previous Scores")
+    print("Compbining Current And Previous Scores and Mentions")
     dict_result = {}
     total_sub_scores = {}
-
     for sub, current_sub_scores_dict in current_scores_dict.items():
         total_sub_scores[sub] = {}
         for symbol, current_score in current_sub_scores_dict.items():
-            if symbol in dict_result.keys():
-                dict_result[symbol]['Score'][0] += current_score[0]
-                dict_result[symbol]['Score'][1] += current_score[0]
-                dict_result[symbol]['Score'][3] += current_score[0]
-                dict_result[symbol]['Mention'] += current_score[1]
-            else:
-                dict_result[symbol] = {}
-                dict_result[symbol]['Score'] = [current_score[0], current_score[0], 0, current_score[0]]
-                dict_result[symbol]['Mention'] = current_score[1]
-            total_sub_scores[sub][symbol] = {}
+            # if symbol in dict_result.keys():
+            #     dict_result[symbol]['Score'][0] += current_score[0]
+            #     dict_result[symbol]['Score'][1] += current_score[0]
+            #     dict_result[symbol]['Score'][3] += current_score[0]
+            #     dict_result[symbol]['Mention'] += current_score[1]
+            # else:
+            #     dict_result[symbol] = {}
+            #     dict_result[symbol]['Score'] = [current_score[0], current_score[0], 0, current_score[0]]
+            #     dict_result[symbol]['Mention'] = current_score[1]
+            if not symbol in total_sub_scores[sub]:
+                total_sub_scores[sub][symbol] = {}
             total_sub_scores[sub][symbol]['Score'] = total_sub_scores[sub][symbol].get('Score', 0) + current_score[0]
             total_sub_scores[sub][symbol]['Mention'] = total_sub_scores[sub][symbol].get('Mention', 0) + current_score[1]
             total_sub_scores[sub][symbol]['Subreddit'] = sub
 
     for sub, prev_sub_scores_dict in prev_scores_dict.items():
         for symbol, prev_score in prev_sub_scores_dict.items():
-            if symbol in dict_result.keys():
-                dict_result[symbol]['Score'][0] += prev_score[0]
-                dict_result[symbol]['Score'][1] += prev_score[0]
-                dict_result[symbol]['Score'][3] += prev_score[0]
-                dict_result[symbol]['Mention'] += prev_score[1]
-            else:
-                dict_result[symbol] = {}
-                dict_result[symbol]['Score'] = [prev_score[0], prev_score[0], 0, prev_score[0]]
-                dict_result[symbol]['Mention'] = prev_score[1]
-            total_sub_scores[sub][symbol] = {}
+            # if symbol in dict_result.keys():
+            #     dict_result[symbol]['Score'][0] += prev_score[0]
+            #     dict_result[symbol]['Score'][1] += prev_score[0]
+            #     dict_result[symbol]['Score'][3] += prev_score[0]
+            #     dict_result[symbol]['Mention'] += prev_score[1]
+            # else:
+            #     dict_result[symbol] = {}
+            #     dict_result[symbol]['Score'] = [prev_score[0], prev_score[0], 0, prev_score[0]]
+            #     dict_result[symbol]['Mention'] = prev_score[1]
+
+            if not symbol in total_sub_scores[sub]:
+                total_sub_scores[sub][symbol] = {}
             total_sub_scores[sub][symbol]['Score'] = total_sub_scores[sub][symbol].get('Score', 0) + prev_score[0]
             total_sub_scores[sub][symbol]['Mention'] = total_sub_scores[sub][symbol].get('Mention', 0) + prev_score[1]
             total_sub_scores[sub][symbol]['Subreddit'] = sub
 
     return total_sub_scores
 
-def filter_df(df, min_val):
-    print("##### Filter Dataframe")
+def filter_df(df):
+    print("Filter Dataframes")
     valid_tickers_with_scores = {}
     VALID_TICKERS = Posts.query.with_entities(Posts.stock_ticker).all()
     VALID_TICKERS = [ticker[0] for ticker in VALID_TICKERS]
@@ -284,7 +280,7 @@ def filter_df(df, min_val):
                 else:
                     valid_tickers_with_scores[ticker].append(stock[ticker])
 
-    # print(valid_tickers_with_scores)
+
     dt = datetime.now()
     for valid_ticker in valid_tickers_with_scores:
         for ticker_data in valid_tickers_with_scores[valid_ticker]:
@@ -298,6 +294,7 @@ def filter_df(df, min_val):
                 mention = int(mention),
                 sub_reddit = subreddit
             )
+
             db_session.add(s)
 
     db_session.commit()

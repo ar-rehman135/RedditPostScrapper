@@ -55,18 +55,13 @@ def main():
 
     print("Getting submissions...")
     # call reddit api to get results
-    current_scores, current_rocket_scores, prev_scores, prev_rocket_scores = get_submission_generators(args.interval, args.sub, args.allsub, args.psaw)
+    current_scores, prev_scores = get_submission_generators(args.interval, args.sub, args.allsub, args.psaw)
 
     print("Populating results...")
     results_df = populate_df(current_scores, prev_scores, args.interval)
-    filter_df(results_df, args.min)
+    filter_df(results_df)
 
     print("Program Complete at ", datetime.now())
-
-    # print("Counting rockets...")
-    # rockets = Counter(current_rocket_scores) + Counter(prev_rocket_scores)
-    # results_df.insert(loc=4, column='Rockets', value=pd.Series(rockets))
-    # results_df = results_df.fillna(value=0).astype({'Rockets': 'int32'})
 
 
 if __name__ == '__main__':

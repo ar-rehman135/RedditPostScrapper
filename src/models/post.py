@@ -23,7 +23,7 @@ class Scores(Base):
 
     def toDict(self):
         return json.dumps(self)
-    
+
 class Scores1(Base):
     __tablename__ = 'test_stocks'
     id = Column(Integer, primary_key=True, autoincrement=True)
