@@ -279,7 +279,9 @@ def filter_df(df):
         'ITA',
         'PLC', 'UGL', 'CAGR'
     ]
-
+    import random
+    d1 = pd.DataFrame(df)
+    d1.to_csv("RejectedTickers/tickers_from_reddit"+str(random.randint(1,1000))+".csv")
     VALID_TICKERS = Posts.query.with_entities(Posts.stock_ticker).all()
     VALID_TICKERS = [ticker[0] for ticker in VALID_TICKERS]
     for key1 in df.keys():
@@ -318,7 +320,6 @@ def listToString(s):
 
 def get_all_tickers_data():
     all_tickers = []
-    rejected_tickers = []
     i=1
     count = 1
     result = None
@@ -329,7 +330,7 @@ def get_all_tickers_data():
         url = "https://api.polygon.io/v2/reference/tickers?sort=ticker&perpage=500&page="+str(i)+"&apiKey="+POLYGON_API_KEY
         resp = request(method="GET", url= url)
         tickers_data = json.loads(resp.text)
-        count = math.ceil(tickers_data['count']/300)
+        count = math.ceil(tickers_data['count']/500)
         if 'tickers' in tickers_data:
             tickers = tickers_data['tickers']
 
@@ -342,37 +343,28 @@ def get_all_tickers_data():
                     error_in_ticker = True
             if error_in_ticker:
                 continue
-            all_tickers.append(ticker['ticker'])
+            all_tickers.append(ticker)
         i+=1
     todayDate = datetime.today()
     print(todayDate , len(all_tickers))
     for ticker in all_tickers:
-        rejected_tickers_dict = {}
+        processed_stats_data = {}
         logo = ''
         industry = ''
         sector = ''
         market_cap = ''
         employees = ''
-        url = ''
+        ticker_url = ''
         description = ''
         company_name = ''
         stock_ticker = ''
         similiar_companies = ''
-        # volume = ''
-        # week_high = ''
-        # week_low = ''
-        url = "https://api.polygon.io/v1/meta/symbols/"+ticker+"/company?&apiKey="+POLYGON_API_KEY
+        url = "https://api.polygon.io/v1/meta/symbols/"+ticker['ticker']+"/company?&apiKey="+POLYGON_API_KEY
         print(url)
         response = request(method="GET", url=url)
         result = json.loads(response.text)
-        # toDate = todayDate.strftime("%Y-%m-%d")
-        # fromDate = str(todayDate.year - 1) + "-" + str(todayDate.month).zfill(2) + "-" + str(todayDate.day).zfill(2)
 
         if not 'error' in result:
-            # volume_url = "https://api.polygon.io/v2/aggs/ticker/"+ticker+"/range/1/year/"+fromDate+"/"+toDate+"?unadjusted=true&sort=asc&limit=120&apiKey="+POLYGON_API_KEY;
-            # response2 = request(method="GET", url=volume_url)
-            # result2 = json.loads(response2.text)
-            processed_stats_data = {}
             if 'logo' in result:
                 logo = result['logo'] if result['logo'] else ''
             if 'industry' in result:
@@ -384,7 +376,7 @@ def get_all_tickers_data():
             if 'employees' in result:
                 employees = result['employees'] if result['employees'] else ''
             if 'url' in result:
-                url = result['url'] if result['url'] else ''
+                ticker_url = result['url'] if result['url'] else ''
             if 'description' in result:
                 description = result['description'] if result['description'] else ''
             if 'name' in result:
@@ -393,10 +385,6 @@ def get_all_tickers_data():
                 stock_ticker = result['symbol'] if result['symbol'] else ''
             if 'similar' in result:
                 similiar_companies = listToString(result['similar']) if result['similar'] else ''
-            # if 'results' in result2 and len(result2['results'])>0:
-            #     volume = result2['results'][0]["v"]
-            #     week_high = result2['results'][0]["h"]
-            #     week_low = result2['results'][0]["l"]
 
             if stock_ticker != '':
                 processed_stats_data['logo'] = logo
@@ -404,26 +392,26 @@ def get_all_tickers_data():
                 processed_stats_data['sector'] = sector
                 processed_stats_data['market_cap'] = market_cap
                 processed_stats_data['employees'] = employees
-                processed_stats_data['url'] = url
+                processed_stats_data['url'] = ticker_url
                 processed_stats_data['description'] = description
                 processed_stats_data['company_name'] = company_name
                 processed_stats_data['stock_ticker'] = stock_ticker
                 processed_stats_data['similiar_companies'] = similiar_companies
                 processed_stats_data['dateTime'] = todayDate
-                # processed_stats_data['volume'] = volume
-                # processed_stats_data['week_high'] = week_high
-                # processed_stats_data['week_low'] = week_low
-                save_to_database(processed_stats_data)
         else:
-            print(ticker, result)
-            rejected_tickers_dict['ticker'] = ticker
-            rejected_tickers_dict['date'] = str(todayDate)
-            rejected_tickers.append(rejected_tickers_dict)
-            continue
-    df1 = pd.DataFrame(rejected_tickers)
-    import random
-    df1.to_csv("RejectedTickers/rejected_tickers"+str(random.randint(0,5000))+".csv", index=False)
-    print("Rejected_tickers are Saved To Csv")
+            processed_stats_data['logo'] = logo
+            processed_stats_data['industry'] = industry
+            processed_stats_data['sector'] = sector
+            processed_stats_data['market_cap'] = market_cap
+            processed_stats_data['employees'] = employees
+            processed_stats_data['url'] = ticker_url
+            processed_stats_data['description'] = description
+            processed_stats_data['company_name'] = ticker['name']
+            processed_stats_data['stock_ticker'] = ticker['ticker']
+            processed_stats_data['similiar_companies'] = similiar_companies
+            processed_stats_data['dateTime'] = todayDate
+
+        save_to_database(processed_stats_data)
 
 def save_to_database(obj):
 
@@ -439,9 +427,6 @@ def save_to_database(obj):
             ticker.company_name=obj['company_name']
             ticker.similiar_companies=obj['similiar_companies']
             ticker.dateTime = obj['dateTime']
-            # ticker.volume=obj['volume']
-            # ticker.week_high=obj['week_high']
-            # ticker.week_low=obj['week_low']
     else:
         p = Posts(
             logo= obj['logo'],
@@ -455,9 +440,7 @@ def save_to_database(obj):
             stock_ticker = obj['stock_ticker'],
             similiar_companies = obj['similiar_companies'],
             dateTime=obj['dateTime']
-            # volume = obj['volume'],
-            # week_high = obj['week_high'],
-            # week_low = obj['week_low']
+
         )
         db_session.add(p)
     db_session.commit()
