@@ -1,0 +1,14 @@
+running cron job at every 1 am
+
+0 1 * * *	/home/reddit/redit_data/RedditPostScrapper/cronjob.sh
+
+
+
+
+
+
+
+run every minute or two minute
+
+*/2 * * * * 	/home/reddit/redit_data/RedditPostScrapper/cronjob.sh
+
